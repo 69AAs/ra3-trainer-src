@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    用「地编伴侣」自己的地图解析器（Dreamness.RA3.Map.Parser）来验证 / 重新落盘 .map。
+    - info     : 打开一张 .map，列出所有资产 + 脚本组（打不开会抛 BadMapException）
+    - resave   : 打开 -> 另存（可选压缩），用于产出最终交付的 .map 和一份"未压缩"副本（便于 grep）
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>MapTool</AssemblyName>
+    <RootNamespace>MapTool</RootNamespace>
+    <RA3WB Condition="'$(RA3WB)' == ''">D:\Games\CoronaLauncher\CoronaResources\NewWorldBuilder</RA3WB>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Dreamness.RA3.Map.Parser">
+      <HintPath>$(RA3WB)\地编伴侣\current\Dreamness.RA3.Map.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Dreamness.RA3.Map.Facade">
+      <HintPath>$(RA3WB)\地编伴侣\current\Dreamness.RA3.Map.Facade.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

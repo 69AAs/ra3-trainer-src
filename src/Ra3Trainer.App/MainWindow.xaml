@@ -1,0 +1,684 @@
+﻿<Window Icon="pack://application:,,,/Ra3Trainer.App;component/Assets/app.ico" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" xmlns:views="clr-namespace:Ra3Trainer.App.Views" xmlns:converters="clr-namespace:Ra3Trainer.App.Converters" x:Class="Ra3Trainer.App.MainWindow" Background="{StaticResource WindowBackgroundBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="{StaticResource AppFont}" UseLayoutRounding="True" Title="{x:Static local:AppInfo.TitleLine}" xmlns:local="clr-namespace:Ra3Trainer.App" Width="840" Height="530" ResizeMode="NoResize" WindowStyle="None" ShowActivated="False" FontSize="13" ToolTipService.IsEnabled="False" ContextMenuService.IsEnabled="False">
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="42" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+  </shell:WindowChrome.WindowChrome>
+  <Window.Resources>
+    <!-- ScrollBar has a framework-provided context menu even without XAML menu markup. -->
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource {x:Type ScrollBar}}">
+      <Setter Property="ContextMenu" Value="{x:Null}"/>
+      <Setter Property="ContextMenuService.IsEnabled" Value="False"/>
+    </Style>
+    <converters:ConnectionStateToBrushConverter x:Key="ConnectionStateToBrushConverter"/>
+    <converters:BooleanToBrushConverter x:Key="LedBrush" TrueBrush="{StaticResource LedOnBrush}" FalseBrush="{StaticResource LedOffBrush}"/>
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    <!-- 导航按钮：四个页签共用的外形；选中态各自一份触发条件。 -->
+    <Style x:Key="NavButtonBase" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Margin" Value="4,5"/>
+      <Setter Property="Padding" Value="4,7"/>
+      <Setter Property="MinWidth" Value="0"/>
+      <Setter Property="Focusable" Value="False"/>
+    </Style>
+    <Style x:Key="PageCaption" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="Foreground" Value="{StaticResource TextTertiaryBrush}"/>
+      <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+    <Style x:Key="NumberText" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    </Style>
+    <!-- 内联列表（启动器 / 兵种）：必须显式吃掉深色主题。
+         默认 ListBox 模板是浅灰的，在深底上像"禁用的输入框"——这是默认模板漏网控件。 -->
+    <Style x:Key="UnitInlineList" TargetType="ListBox">
+      <Setter Property="Background" Value="{StaticResource InkPanelBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource GrooveBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="2"/>
+    </Style>
+    <!-- 一行一功能：远距离用，行高给足；悬停给一点反馈 -->
+    <Style x:Key="FeatureRow" TargetType="Border">
+      <Setter Property="Padding" Value="2,2"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="{StaticResource ElevatedSurfaceBrush}"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </Window.Resources>
+  <Border Background="{StaticResource PlateBrush}" BorderBrush="{StaticResource GrooveBrush}" BorderThickness="1">
+    <DockPanel>
+      <Border DockPanel.Dock="Top" Background="{StaticResource TopBarBackgroundBrush}" Padding="12,7"
+                BorderBrush="{StaticResource SeparatorBrush}" BorderThickness="0,0,0,1">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+        <!-- 顶栏的「面板模式」按钮已删（用户 2026-10-06：面板只在游戏里出，主窗再挂一个"面板模式"
+             意义不明；要开关去「诊断」页那个勾选框，或游戏内按 Ins）。 -->
+            <Button Content="一键全撤" Command="{Binding RestorePatchesCommand}" MinWidth="0" Padding="8,2" Margin="0,0,8,0"
+                    ToolTip="把游戏还原成没开修改器的样子（出了问题才用）"/>
+                <Button Content="—" Click="OnMinimizeClick" MinWidth="28"/>
+            <Button Content="✕" Click="OnCloseWindowClick" MinWidth="28"/>
+          </StackPanel>
+          <TextBlock Text="红警3 修改器" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+        </DockPanel>
+      </Border>
+      <ScrollViewer DockPanel.Dock="Bottom" MaxHeight="64" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <TextBlock Text="{Binding StatusMessage}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap" Margin="12,6" Foreground="{StaticResource TextTertiaryBrush}"/>
+      </ScrollViewer>
+      <Border DockPanel.Dock="Top" Padding="12,6" BorderBrush="{StaticResource WarningBrush}" BorderThickness="0,0,0,1" Visibility="{Binding OverlayRefused, Converter={StaticResource BoolToVisibility}}">
+        <StackPanel>
+          <TextBlock Text="{Binding OverlayStatus}" TextWrapping="Wrap" Foreground="{StaticResource WarningBrush}"/>
+          <TextBlock Text="遇到问题？到「诊断」页看排查步骤。" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+        <StackPanel DockPanel.Dock="Top" Margin="6">
+          <StackPanel.Style>
+            <Style TargetType="StackPanel">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers><DataTrigger Binding="{Binding IsCoordinateActionPending}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+            </Style>
+          </StackPanel.Style>
+          <TextBlock Text="{Binding CoordinateCountdownText}" TextWrapping="Wrap" Foreground="{StaticResource WarningBrush}"/>
+          <Button Content="取消后续坐标动作" Command="{Binding CancelCoordinateActionCommand}" Focusable="False"/>
+        </StackPanel>
+      <!-- 页签：顶部四等分网格（方向 C）。与游戏内面板同一套语言；当前项红底黑字。 -->
+      <Grid x:Name="NavigationRail" DockPanel.Dock="Top" Background="{StaticResource TopBarBackgroundBrush}" Margin="0,0,0,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" x:Name="Nav启动" Content="01 启动" Command="{Binding Navigation.SelectCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="启动">
+          <Button.Style>
+            <Style TargetType="Button" BasedOn="{StaticResource NavButtonBase}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="启动">
+                  <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                  <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                  <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+        <Button Grid.Column="1" x:Name="Nav增援" Content="02 增援" Command="{Binding Navigation.SelectCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="增援">
+          <Button.Style>
+            <Style TargetType="Button" BasedOn="{StaticResource NavButtonBase}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="增援">
+                  <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                  <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                  <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+        <Button Grid.Column="2" x:Name="Nav功能" Content="03 功能" Command="{Binding Navigation.SelectCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="功能">
+          <Button.Style>
+            <Style TargetType="Button" BasedOn="{StaticResource NavButtonBase}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="功能">
+                  <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                  <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                  <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+        <Button Grid.Column="3" x:Name="Nav诊断" Content="04 诊断" Command="{Binding Navigation.SelectCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="诊断">
+          <Button.Style>
+            <Style TargetType="Button" BasedOn="{StaticResource NavButtonBase}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="诊断">
+                  <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                  <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                  <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+      </Grid>
+
+      <!-- 内容区：单列（页签已在顶部，不再占 112px 左栏） -->
+      <Grid>
+
+        <!-- ① 启动：每天用的主操作都在这页。低频排查在「诊断」。 -->
+        <ScrollViewer x:Name="StartPage" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,10">
+          <ScrollViewer.Style>
+            <Style TargetType="ScrollViewer">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="启动">
+                  <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ScrollViewer.Style>
+          <StackPanel>
+            <TextBlock Text="启动" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,2"/>
+            <!-- 2026-10-11 评审：删掉"操作流程说明"整段（用户点启动要的是开始，不是读说明书；低频项本来也在别处） -->
+            <TextBlock Visibility="Collapsed" Text="" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+            <!-- 当前 mod：多信号识别（游戏进程命令行 > 已加载模块 > 启动器配置；全缺 = 未知，不过滤）。
+                 用户 2026-10-07：识别得看得见 —— 别只在内部算完，换 mod 时人要知道现在按哪个 mod 过滤。 -->
+            <StackPanel x:Name="StartModIdentityPanel" Orientation="Horizontal" Margin="0,0,0,8">
+              <TextBlock x:Name="StartCurrentModLine" Text="{Binding CurrentModText}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+              <TextBlock Text="{Binding CurrentModEvidenceText}" FontSize="10.5" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            </StackPanel>
+            <Button x:Name="LaunchAndLoadPrimaryButton" Content="启动游戏并开启修改" Command="{Binding LaunchAndLoadCommand}" Style="{StaticResource PrimaryButtonStyle}" FontSize="14" Padding="18,9" HorizontalAlignment="Left" Focusable="False"/>
+            <Grid Margin="0,8,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                <TextBlock Text="选择启动器" Style="{StaticResource PageCaption}"/>
+                <ListBox x:Name="LauncherSelector" ItemsSource="{Binding LauncherCandidates}" SelectedItem="{Binding SelectedLauncher}" Style="{StaticResource UnitInlineList}" MaxHeight="78">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <Button HorizontalContentAlignment="Stretch" views:InlineSelection.SelectOnClick="True">
+                        <TextBlock Text="{Binding DisplayName}" TextWrapping="Wrap"/>
+                      </Button>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <DockPanel Margin="0,6,0,0">
+                  <Button DockPanel.Dock="Right" Content="浏览…" Command="{Binding BrowseLauncherCommand}" Margin="6,0,0,0" Padding="18,3" MinWidth="88"/>
+                  <Button Content="重新扫描" Command="{Binding RescanLaunchersCommand}" HorizontalAlignment="Left"/>
+                </DockPanel>
+                <TextBlock Text="启动路径" Style="{StaticResource PageCaption}" Margin="0,6,0,2"/>
+                <TextBox Text="{Binding LauncherPath, UpdateSourceTrigger=PropertyChanged}" FontSize="11"/>
+                <TextBlock Text="启动参数" Style="{StaticResource PageCaption}" Margin="0,4,0,2"/>
+                <TextBox Text="{Binding LauncherArguments, UpdateSourceTrigger=PropertyChanged}" FontSize="11"/>
+                <Button Content="保存" Command="{Binding SaveLauncherSettingsCommand}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+              </StackPanel>
+              <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                <TextBlock Text="游戏连接" Style="{StaticResource PageCaption}"/>
+                <WrapPanel>
+                  <Button Content="开启修改" Command="{Binding InstallPatchesCommand}" Margin="0,0,6,6"/>
+                  <Button Content="连接游戏" Command="{Binding RefreshCommand}" Margin="0,0,6,6"/>
+                </WrapPanel>
+                <TextBlock Text="{Binding HookSummary}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,6"/>
+                <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,0,0,6"/>
+                <TextBlock Text="启动设置" Style="{StaticResource PageCaption}"/>
+                <CheckBox IsChecked="{Binding AutoFloatAfterLaunch, Mode=TwoWay}" Focusable="False" Margin="0,3">
+                  <TextBlock Text="启动后自动打开游戏内面板" TextWrapping="Wrap" FontSize="11.5"/>
+                </CheckBox>
+              </StackPanel>
+            </Grid>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,8"/>
+            <TextBlock Text="本机状态" Style="{StaticResource PageCaption}"/>
+            <TextBlock Text="{Binding DiagnosticsSummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,1"/>
+            <TextBlock Text="{Binding FeatureSummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,1"/>
+            <TextBlock Text="{Binding RemoteMemorySummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,1"/>
+            <TextBlock Text="{Binding WorldPositionRiskNotice}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,6"/>
+            <TextBlock Text="窗口大小" Style="{StaticResource PageCaption}"/>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,8,0,4"/>
+            <TextBlock Text="常用热键" Style="{StaticResource PageCaption}"/>
+            <TextBlock Text="游戏里按 Ins 开关面板（Ctrl+F9 备用）；每个功能的热键写在「功能」页那一行右侧。热键只在游戏处于前台时生效。" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+          </StackPanel>
+        </ScrollViewer>
+
+        <Grid Grid.Column="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+        <ScrollViewer x:Name="ReinforcementPage" Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,10">
+          <ScrollViewer.Style>
+            <Style TargetType="ScrollViewer">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="增援">
+                  <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ScrollViewer.Style>
+          <StackPanel>
+            <StackPanel x:Name="ReinforcementEditorPanel" DataContext="{Binding ReinforcementEditor, RelativeSource={RelativeSource AncestorType=Window}}">
+              <TextBlock x:Name="UnitSelectorHeading" Text="增援" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+              <!-- 当前 mod：多信号识别结果（游戏进程命令行 > 已加载模块 > 启动器配置）。
+                   认不出时文案明说"未过滤（避免藏掉你的单位）"—— 别让人以为单位凭空少了。 -->
+              <TextBlock x:Name="CurrentModLine" Text="{Binding Main.CurrentModText}" FontSize="12" FontWeight="SemiBold"
+                         Margin="0,0,0,1" TextWrapping="Wrap" Foreground="{StaticResource TextPrimaryBrush}"/>
+              <TextBlock Text="{Binding Main.CurrentModEvidenceText}" FontSize="10.5" Margin="0,0,0,8"
+                         TextWrapping="Wrap" Foreground="{StaticResource TextTertiaryBrush}"/>
+              <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,0,0,6"/>
+
+              <!-- ① 当前兵力。用户 2026-10-07「主菜单的增援布局逻辑还是乱」的根因：
+                   这一页每一块各用一套对齐方式 —— 兵种/数量/星级 甩到窗口最右、快捷数量在最左、
+                   选兵按钮又在最右，标签只有 10px 且宽度各不相同（30 / 无 / 无），一眼看不出哪块跟哪块。
+                   现在整页统一成「诊断」页那套「标签列 72 + 值」网格：标签同一列、值同一个起点、行间一条槽线。 -->
+              <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="兵种" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <TextBlock x:Name="CurrentUnitName" Grid.Column="1" Text="{Binding Main.SelectedReinforcementUnit.Name, TargetNullValue=尚未选择兵种}" FontSize="12" Margin="0,3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+              </Grid>
+
+              <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="数量" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" views:CountWheel.Command="{Binding WheelCountCommand}">
+                  <RepeatButton Delay="350" Interval="75" Style="{StaticResource CountRepeatStyle}" x:Name="DecreaseCountButton" Content="−" Command="{Binding DecreaseCountCommand}" Focusable="False" MinWidth="22" Padding="5,2"/>
+                  <TextBox x:Name="CountValue" Text="{Binding Main.ReinforcementCountText, UpdateSourceTrigger=PropertyChanged}" Width="52" Margin="3,0" FontFamily="Consolas" FontSize="12" TextAlignment="Center"/>
+                  <RepeatButton Delay="350" Interval="75" Style="{StaticResource CountRepeatStyle}" x:Name="IncreaseCountButton" Content="+" Command="{Binding IncreaseCountCommand}" Focusable="False" MinWidth="22" Padding="5,2"/>
+                </StackPanel>
+                <!-- 快捷数量：和"数量"同一行的同一段（原来它单独占一行、又在最左边，跟数量隔着大半个窗口） -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="18,0,0,0" VerticalAlignment="Center" views:CountWheel.Command="{Binding WheelCountCommand}">
+                  <TextBlock Text="快捷" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{StaticResource TextTertiaryBrush}"/>
+                  <Button Content="1" Command="{Binding SetCountCommand}" CommandParameter="1" Focusable="False" MinWidth="0" Padding="7,2" Margin="0,0,3,0"/>
+                  <Button Content="5" Command="{Binding SetCountCommand}" CommandParameter="5" Focusable="False" MinWidth="0" Padding="7,2" Margin="0,0,3,0"/>
+                  <Button Content="10" Command="{Binding SetCountCommand}" CommandParameter="10" Focusable="False" MinWidth="0" Padding="7,2" Margin="0,0,3,0"/>
+                  <Button Content="20" Command="{Binding SetCountCommand}" CommandParameter="20" Focusable="False" MinWidth="0" Padding="7,2" Margin="0,0,3,0"/>
+                  <Button Content="50" Command="{Binding SetCountCommand}" CommandParameter="50" Focusable="False" MinWidth="0" Padding="7,2"/>
+                </StackPanel>
+                <Rectangle Grid.ColumnSpan="3" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+              </Grid>
+
+              <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="星级" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                  <Button x:Name="DecreaseRankButton" Content="−" Command="{Binding DecreaseRankCommand}" Focusable="False" MinWidth="22" Padding="5,2"/>
+                  <TextBlock x:Name="RankValue" Text="{Binding Main.ReinforcementRankText}" Width="30" TextAlignment="Center" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                  <Button x:Name="IncreaseRankButton" Content="+" Command="{Binding IncreaseRankCommand}" Focusable="False" MinWidth="22" Padding="5,2"/>
+                </StackPanel>
+                <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+              </Grid>
+
+              <!-- ② 选兵入口：标签列同一条线，两个按钮同一行同一权重 -->
+              <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="选兵" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                  <Button x:Name="ChooseUnitButton" Content="选择单位" Command="{Binding ToggleUnitsCommand}" Focusable="False" MinWidth="0" Padding="10,2"/>
+                  <Button x:Name="ReadGameUnitButton" Content="用游戏里选中的" Command="{Binding Main.ReadSelectedUnitCodeCommand}" Focusable="False" MinWidth="0" Padding="10,2" Margin="6,0,0,0"/>
+                </StackPanel>
+                <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+              </Grid>
+
+              <!-- ③ 选兵面板：分类 | 单位 两列（同一高度，等高才不歪）；没选分类时右列明说一句，
+                   不再留一大块空黑（用户看到的就是"右边空着，不知道要干嘛"）。 -->
+              <!-- 选兵区常驻（用户 2026-10-07「分类左边固定住」）：没有 Visibility 开关，
+                   点分类、点兵种都不会让它或左列消失。IsChoosing 那个死状态已删。 -->
+              <StackPanel x:Name="UnitSelectionPanel" Margin="0,2,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0">
+                    <!-- 用户 2026-10-07：「分类左边固定住，没必要点一下单位就消失」⇒ 这一列常驻：
+                         没有 Visibility 开关、没有「其他分类」按钮（它原来只是用来把藏起来的分类列叫回来）。
+                         点分类、点兵种，左列都纹丝不动。 -->
+                    <TextBlock Text="分类" FontSize="9" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,3"/>
+                    <ListBox x:Name="CategorySelector" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" Style="{StaticResource UnitInlineList}" MinHeight="300" MaxHeight="300">
+                      <ListBox.ItemTemplate>
+                        <DataTemplate>
+                          <Button Content="{Binding}" Focusable="False" HorizontalContentAlignment="Left" Padding="6,3" MinWidth="0" views:InlineSelection.SelectOnClick="True">
+                            <Button.ContentTemplate><DataTemplate><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis"/></DataTemplate></Button.ContentTemplate>
+                          </Button>
+                        </DataTemplate>
+                      </ListBox.ItemTemplate>
+                    </ListBox>
+                    <WrapPanel>
+                      <Button Content="上一页" Focusable="False" views:InlineListPaging.Target="CategorySelector:up" Padding="6,2" MinWidth="0" Margin="0,3,4,0"/>
+                      <Button Content="下一页" Focusable="False" views:InlineListPaging.Target="CategorySelector:down" Padding="6,2" MinWidth="0" Margin="0,3,0,0"/>
+                    </WrapPanel>
+                  </StackPanel>
+                  <Rectangle Grid.Column="1" Width="1" Fill="{StaticResource GrooveBrush}" Margin="6,0"/>
+                  <StackPanel Grid.Column="2">
+                    <DockPanel Margin="0,0,0,3">
+                      <TextBlock DockPanel.Dock="Right" Text="代号" FontSize="9" Foreground="{StaticResource TextTertiaryBrush}"/>
+                      <TextBlock Text="{Binding SelectedCategory, StringFormat=单位 · {0}}" FontSize="9" Foreground="{StaticResource TextTertiaryBrush}"/>
+                    </DockPanel>
+                    <TextBlock Text="左边先点一个分类，这里就列出它的兵种。" FontSize="10.5" Margin="0,6,0,0" Foreground="{StaticResource TextTertiaryBrush}">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Visibility" Value="Collapsed"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasCategory}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                    <StackPanel Visibility="{Binding HasCategory, Converter={StaticResource BoolToVisibility}}">
+                      <ListBox x:Name="UnitSelector" ItemsSource="{Binding Units}" SelectedItem="{Binding SelectedUnit, Mode=TwoWay}" Style="{StaticResource UnitInlineList}" MinHeight="300" MaxHeight="300">
+                        <ListBox.ItemTemplate>
+                          <DataTemplate>
+                            <Button Focusable="False" HorizontalContentAlignment="Stretch" Padding="6,3" MinWidth="0" views:InlineSelection.SelectOnClick="True" Command="{Binding DataContext.CommitUnitCommand, RelativeSource={RelativeSource AncestorType=ListBox}}">
+                              <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding CodeText}" FontSize="10" FontFamily="Consolas" Margin="8,0,0,0" Foreground="{StaticResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                              </Grid>
+                            </Button>
+                          </DataTemplate>
+                        </ListBox.ItemTemplate>
+                      </ListBox>
+                      <WrapPanel>
+                        <Button Content="上一页" Focusable="False" views:InlineListPaging.Target="UnitSelector:up" Padding="6,2" MinWidth="0" Margin="0,3,4,0"/>
+                        <Button Content="下一页" Focusable="False" views:InlineListPaging.Target="UnitSelector:down" Padding="6,2" MinWidth="0" Margin="0,3,0,0"/>
+                      </WrapPanel>
+                    </StackPanel>
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+
+              <!-- ④ 预设：标签列同一条线；有预设就在这一行点，没有就一句话说明怎么存 -->
+              <Grid DataContext="{Binding Main}" Margin="0,0,0,6">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="预设" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <StackPanel Grid.Column="1">
+                  <!-- 一行说清：值列左边是"有预设就列出来 / 没预设就说明怎么存"，右边永远是「存为预设」 -->
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="存为预设" Command="{Binding SaveReinforcementPresetCommand}" Focusable="False" MinWidth="0" Padding="10,2"/>
+                    <TextBlock x:Name="PresetEmptyState" Text="还没有预设：选好兵种 / 数量 / 星级，点右边「存为预设」留作下次用。" TextWrapping="Wrap" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource TextTertiaryBrush}">
+                      <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ReinforcementPresets.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                    </TextBlock>
+                    <ItemsControl x:Name="PresetSelector" ItemsSource="{Binding ReinforcementPresets}" MaxHeight="66" Margin="0,0,8,0">
+                      <ItemsControl.Template><ControlTemplate TargetType="ItemsControl"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False"><ItemsPresenter/></ScrollViewer></ControlTemplate></ItemsControl.Template>
+                      <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ApplyReinforcementPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Focusable="False" MaxWidth="220" Padding="8,3" MinWidth="0" Margin="0,3,4,0"><Button.ContentTemplate><DataTemplate><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis"/></DataTemplate></Button.ContentTemplate></Button></DataTemplate></ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </DockPanel>
+                </StackPanel>
+                <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+              </Grid>
+
+              <!-- ⑤ 状态：四行裸文本改成同一个「标签列 72 + 值」网格（原来四行都没标签、字号还都一样，
+                   一眼看不出哪行是目标、哪行是取样）。发兵结果在页脚的常驻条上，这里不重复。 -->
+              <Grid DataContext="{Binding Main}" MinHeight="60">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="目标动作" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Top" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CoordinateActionMode}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="10.5" Margin="0,3" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="取样" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Top" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ReinforcementEditor.CountEvidenceText, RelativeSource={RelativeSource AncestorType=Window}}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="10.5" Margin="0,3" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="风险" FontSize="10.5" Margin="3,3,0,3" VerticalAlignment="Top" Foreground="{StaticResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding WorldPositionRiskNotice}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="10.5" Margin="0,3" Foreground="{StaticResource WarningBrush}"/>
+                <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Top" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+
+        </ScrollViewer>
+          <!-- 主操作常驻页脚：它是这一页的目的，不该要滚动才能按 -->
+          <Border Grid.Row="1" Background="{StaticResource TopBarBackgroundBrush}" BorderBrush="{StaticResource GrooveBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+            <Border.Style>
+              <Style TargetType="Border">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="增援">
+                    <Setter Property="Visibility" Value="Visible"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Border.Style>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Button Grid.Column="0" x:Name="CallReinforcementButton" Content="呼叫增援（J）" Command="{Binding ReinforcementEditor.CallCommand, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource PrimaryButtonStyle}" Focusable="False" Padding="18,9" FontSize="14"/>
+              <TextBlock Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"
+                         FontFamily="Consolas" FontSize="10.5" Foreground="{StaticResource TextTertiaryBrush}"
+                         Text="{Binding ReinforcementEditor.Feedback, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <ScrollViewer x:Name="FeaturesPage" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,10">
+          <ScrollViewer.Style>
+            <Style TargetType="ScrollViewer">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="功能">
+                  <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ScrollViewer.Style>
+          <StackPanel><TextBlock Text="{Binding SelectedUnitHelp}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="10.5" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="功能" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+            <Expander Header="资源数值" IsExpanded="False" Focusable="False">
+              <StackPanel>
+                <TextBlock Text="改完按回车生效" FontSize="10.5" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,6"/>
+                <DockPanel Margin="0,0,0,5">
+                  <TextBlock Text="战场资金" Width="110" VerticalAlignment="Center"/>
+                  <TextBox Text="{Binding MoneyAmountText, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
+                </DockPanel>
+                <DockPanel Margin="0,0,0,5">
+                  <TextBlock Text="电力" Width="110" VerticalAlignment="Center"/>
+                  <TextBox Text="{Binding PowerValueText, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
+                </DockPanel>
+                <DockPanel Margin="0,0,0,5">
+                  <TextBlock Text="秘密协议点数" Width="110" VerticalAlignment="Center"/>
+                  <TextBox Text="{Binding ScPointValueText, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
+                </DockPanel>
+              </StackPanel>
+            </Expander>
+            <DockPanel Margin="0,4,0,0">
+              <TextBlock Text="搜索" FontSize="10" Width="30" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+              <Button DockPanel.Dock="Right" Content="清空" Command="{Binding ClearFeatureFilterCommand}" Margin="6,0,0,0" MinWidth="0" Padding="8,2"/>
+              <TextBox Text="{Binding FeatureFilter, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11.5" Padding="6,3"/>
+            </DockPanel>
+            <!-- 列头：方向 C 的标志件。列宽必须与行模板一致（Auto / * / 58 / Auto），否则不齐。 -->
+            <Grid Margin="0,6,0,2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="58"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="1" Text="功能" FontSize="9" Foreground="{StaticResource TextTertiaryBrush}"/>
+              <TextBlock Grid.Column="2" Text="热键" FontSize="9" TextAlignment="Right" Foreground="{StaticResource TextTertiaryBrush}"/>
+              <TextBlock Grid.Column="3" Text="命令" FontSize="9" MinWidth="42" TextAlignment="Right" Foreground="{StaticResource TextTertiaryBrush}"/>
+            </Grid>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,0,0,1"/>
+
+            <ItemsControl ItemsSource="{Binding VisibleGroups}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Expander Header="{Binding Name}" IsExpanded="True" Margin="0,0,0,8">
+                    <StackPanel>
+                      <Rectangle Height="1" Fill="{StaticResource GrooveBrush}"/>
+                      <ItemsControl ItemsSource="{Binding Features}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Border Style="{StaticResource FeatureRow}">
+                              <Grid>
+                                <Grid.ColumnDefinitions>
+                                  <ColumnDefinition Width="Auto"/>
+                                  <ColumnDefinition Width="*"/>
+                                  <ColumnDefinition Width="58"/>
+                                  <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,4,0">
+                                  <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                      <Setter Property="Fill" Value="{StaticResource LedOffBrush}"/>
+                                      <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                          <Setter Property="Fill" Value="{StaticResource LedOnBrush}"/>
+                                        </DataTrigger>
+                                      </Style.Triggers>
+                                    </Style>
+                                  </Ellipse.Style>
+                                </Ellipse>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                  <TextBlock Text="{Binding DisplayName}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                  <TextBlock Text="{Binding RiskLabel}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource WarningBrush}">
+                                    <TextBlock.Style>
+                                      <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                          <DataTrigger Binding="{Binding RiskLabel}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                          </DataTrigger>
+                                        </Style.Triggers>
+                                      </Style>
+                                    </TextBlock.Style>
+                                  </TextBlock>
+                                </StackPanel>
+                                <TextBlock Grid.Column="2" Text="{Binding Hotkey}" FontSize="11" Foreground="{StaticResource TextDisabledBrush}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="3" Content="{Binding ActionText}" Command="{Binding Command}" Style="{StaticResource FeatureButtonStyle}" Padding="4,3" FontSize="12" MinWidth="42" VerticalAlignment="Center"/>
+                              </Grid>
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Expander>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- ② 诊断：真正低频的排查、取证与游戏内面板开关。 -->
+        <ScrollViewer x:Name="DiagnosticsPage" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,10">
+          <ScrollViewer.Style>
+            <Style TargetType="ScrollViewer">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Navigation.Selected, RelativeSource={RelativeSource AncestorType=Window}}" Value="诊断">
+                  <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ScrollViewer.Style>
+          <StackPanel>
+            <TextBlock Text="诊断" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+            <!-- 诊断页正是该摊底层值的地方，但要摊成"项目 | 值"的网格，不是七行裸值 -->
+            <Grid Margin="0,0,0,4">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="项目" FontSize="9" Foreground="{StaticResource TextTertiaryBrush}"/>
+              <TextBlock Grid.Column="1" Text="值" FontSize="9" Foreground="{StaticResource TextTertiaryBrush}"/>
+            </Grid>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,0,0,3"/>
+            <StackPanel Orientation="Horizontal" Margin="0,3,0,3">
+              <TextBlock Text="连接" FontSize="10.5" Width="72" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+              <Ellipse Width="7" Height="7" VerticalAlignment="Center" Margin="0,0,6,0" Fill="{Binding ConnectionState, Converter={StaticResource ConnectionStateToBrushConverter}}"/>
+              <TextBlock Text="{Binding ConnectionStateText}" FontSize="11.5" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+            </StackPanel>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,3,0,6"/>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="进程" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding DiagnosticsSummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="改动点" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding HookSummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="已启用" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding FeatureSummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="注入的模块" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding RemoteMemorySummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="退出记录" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding LastExitDescription}" TextWrapping="Wrap" FontSize="11.5" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="记录目录" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding LastEvidencePath}" TextWrapping="Wrap" FontSize="11.5" FontFamily="Consolas" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="只读快照" FontSize="10.5" Margin="0,3" VerticalAlignment="Center" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <TextBlock Grid.Column="1" Text="{Binding ProbeSummary}" TextWrapping="Wrap" FontSize="11.5" Margin="0,3" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,0"/>
+            </Grid>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,2,0,6"/>
+            <WrapPanel>
+              <Button Content="检查改动点" Command="{Binding InspectHooksCommand}" Padding="10,2" MinWidth="0" Margin="0,0,6,0"/>
+              <Button Content="导出问题记录" Command="{Binding ExportEvidenceCommand}" Padding="10,2" MinWidth="0" Margin="0,0,6,0"/>
+              <Button Content="导出只读快照" Command="{Binding ExportProbeCommand}" Padding="10,2" MinWidth="0" Margin="0,0,6,0"/>
+              <Button Content="打开日志" Command="{Binding OpenLogFolderCommand}" Padding="10,2" MinWidth="0" Margin="0,0,6,0"/>
+              <Button Content="打开问题记录" Command="{Binding OpenEvidenceFolderCommand}" Padding="10,2" MinWidth="0"/>
+              <Button Content="打开数据目录" Command="{Binding OpenDataFolderCommand}" Padding="10,2" MinWidth="0"/>
+            </WrapPanel>
+            <TextBlock Text="{Binding ProductVersionLine}" TextWrapping="Wrap" FontSize="11.5" Margin="0,6,0,0" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <TextBlock Text="{Binding ProductDataLine}" TextWrapping="Wrap" FontSize="10.5" Margin="0,1,0,0" Foreground="{StaticResource TextTertiaryBrush}"/>
+
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,8,0,6"/>
+            <TextBlock Text="游戏内面板" Style="{StaticResource PageCaption}"/>
+            <CheckBox IsChecked="{Binding PanelMode, Mode=TwoWay}" Focusable="False" Margin="0,2">
+              <TextBlock Text="面板模式（游戏内按 Ins 或勾这里）" TextWrapping="Wrap" FontSize="11.5"/>
+            </CheckBox>
+            <TextBlock Text="游戏内键盘：Num8/2 选行 · Num5 执行 · Num4/6 左右（先按 5 进调节）· Num7/9 换页 · Num0 返回 · Ins 关闭面板"
+                       TextWrapping="Wrap" FontFamily="Consolas" FontSize="10" Margin="20,0,0,4"
+                       Foreground="{StaticResource TextTertiaryBrush}"/>
+            <CheckBox IsChecked="{Binding OverlayEnabled, Mode=TwoWay}" Focusable="False" Margin="0,2">
+              <TextBlock Text="游戏内面板 M1（下次一键启动自动部署，仅显示）" TextWrapping="Wrap" FontSize="11.5"/>
+            </CheckBox>
+            <TextBlock x:Name="OverlayStatusText" Text="{Binding OverlayStatus}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="10.5" Margin="0,2" Foreground="{StaticResource TextTertiaryBrush}"/>
+            <StackPanel x:Name="OverlayHelpPanel">
+              <Expander Header="面板不显示？查看占槽排查与关闭指引" IsExpanded="False" Focusable="False" Margin="0,2,0,0">
+                <TextBlock x:Name="OverlayGuidanceText" Text="{Binding OverlayGuidance}" TextWrapping="Wrap" FontSize="11"/>
+              </Expander>
+            </StackPanel>
+
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,8,0,6"/>
+            <TextBlock Text="高风险功能（默认关闭）" Style="{StaticResource PageCaption}"/>
+            <CheckBox IsChecked="{Binding AllowUnverifiedWorldPositionFeatures, Mode=TwoWay}" Focusable="False" Margin="0,2">
+              <TextBlock Text="开启高风险功能（单位操作、威胁等级、矿点；可能不稳定，需要时再开）" TextWrapping="Wrap" FontSize="11.5"/>
+            </CheckBox>
+            <TextBlock Text="{Binding WorldPositionRiskNotice}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="10.5" Margin="20,0,0,0" Foreground="{StaticResource TextTertiaryBrush}"/>
+
+            <TextBlock Text="问题记录与只读采样（平时不用动）" Style="{StaticResource PageCaption}"/>
+<CheckBox IsChecked="{Binding InspectHooksBeforeInstall, Mode=TwoWay}" Focusable="False" Margin="0,3">
+                  <TextBlock Text="开启前先检查（更稳）" TextWrapping="Wrap" FontSize="11.5"/>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding AllowNonStandardVersion, Mode=TwoWay}" Focusable="False" Margin="0,3">
+                  <TextBlock Text="我的游戏是修改版/整合包" TextWrapping="Wrap" FontSize="11.5"/>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding AutoCollectEvidenceOnExit, Mode=TwoWay}" Focusable="False" Margin="0,3">
+                  <TextBlock Text="出问题自动记录现场" TextWrapping="Wrap" FontSize="11.5"/>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding SafeSamplingEnabled, Mode=TwoWay}" Focusable="False" Margin="0,3">
+                  <TextBlock Text="只读模式（不写游戏内存）" TextWrapping="Wrap" FontSize="11.5"/>
+                </CheckBox>
+            <Rectangle Height="1" Fill="{StaticResource GrooveBrush}" Margin="0,8,0,6"/>
+            <TextBlock Text="心灵控制（把选中单位变成自己的）" Style="{StaticResource PageCaption}"/>
+            <TextBlock TextWrapping="Wrap" FontSize="11.5" Margin="0,1"><Run Text="心灵控制 = 把当前选中的那个单位变成你的（一次一个单位）。"/><LineBreak/><Run Text="游戏里按 Ctrl+D，或点下面的按钮；失败时状态行会说清原因。"/><LineBreak/><Run Text="默认关闭：先在上面勾「开启高风险功能」。执行后可以「解除心灵控制」还原。"/><LineBreak/><Run Text="为什么不能一次选好几个？游戏里框选只装自己阵营的单位，选不到别人的。" FontSize="10.5"/></TextBlock>
+
+            <!-- 心灵控制的三个入口：读（只读）/ 执行（一次一个）/ 解除。2026-10-11 评审：说明改成人话，
+                 技术细节（0x09 动作、[U+0x418]、快照文件名）收进按钮的悬停提示。 -->
+            <Button Content="读出选中单位归属" Command="{Binding ProbeSelectedUnitOwnershipCommand}"
+                    Margin="0,6,0,0" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+              <Button Content="心灵控制（当前选中单位）" Command="{Binding ApplyOwnershipTransferCommand}" Margin="0,0,6,0"
+                      ToolTip="键盘快捷键 Ctrl+D。技术细节：复用引擎自己的 0x09 动作（Select Unit Change ID）把归属字段 [U+0x418] 写成本机玩家，带引擎类型黑名单；执行前落盘快照 duoshe-apply-*.json，写后回读显示「改前→改后」，可一键还原。"/>
+              <Button Content="解除心灵控制" Command="{Binding RestoreOwnershipCommand}"
+                      ToolTip="用最近一次心灵控制落盘的快照把旧 owner 写回；没有快照时不可点。"/>
+            </StackPanel>
+            <TextBlock Text="{Binding OwnershipTransferText}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
+                       Foreground="{StaticResource TextSecondaryBrush}"/>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </DockPanel>
+  </Border>
+</Window>

@@ -1,0 +1,78 @@
+# 构建产物
+[Bb]in/
+[Oo]bj/
+dist/
+release/
+artifacts/
+*.user
+*.suo
+
+# 本地工具链与第三方构建中间件
+tools/Dx9OverlayHarness/.toolchain/
+**/.toolchain/
+
+# 大体积探针样本（几十~上百 MB，不入库）
+docs/**/*.jsonl
+docs/**/*.bin
+res/
+
+# 用户数据 / 本地产物
+logs/
+crashdumps/
+units-*.txt
+unit-names-*.txt
+unit-type-scan.txt
+duoshe-probe-*.json
+Ra3Trainer.settings.json
+*.bak-*
+
+# 凭据与个人环境
+.env
+.env.*
+*.pfx
+*.pem
+*.key
+
+# 工程日记 / 过程记录 / 代理配置（保留在硬盘，不进版本库）
+HANDOFF-*.md
+REPORT.md
+AGENTS.md
+CLAUDE.md
+.trellis/
+_ui_backup_step1/
+docs/domain/
+docs/round*/
+docs/handoff/
+docs/*.json
+docs/*.jsonl
+*.before_*
+docs/crash-evidence/
+docs/round15-audit/
+docs/*.log
+*.wer
+tests/Ra3Trainer.Tests/TestResults/
+**/map-lib/**/work/
+**/map-lib/**/out/
+*.trx
+
+# 公开仓库：过程文档与中间产物一律不入库（只留产品文档）
+docs/*.md
+!docs/README.md
+!docs/RELEASE-NOTES-v1.0.0.md
+docs/*.txt
+!docs/使用说明.txt
+!docs/第三方许可.txt
+docs/*.ps1
+docs/*.json
+docs/*.jsonl
+tests/**/TestResults/
+**/map-lib/**/work/
+**/map-lib/**/out/
+**/*.trx
+**/*.wer
+**/*.raw
+**/*.hs.map
+
+# 一次性脚本（下划线开头）与个人评审脚本
+tools/_*
+scripts/ocr-full-review*

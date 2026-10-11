@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <!-- Restore both targets for the x64-only smoke host; production still defaults to win-x86. -->
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+    <LangVersion>latest</LangVersion>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">false</DebugSymbols>
+    <!-- 应用图标（用户 2026-10-11 提供）：exe/任务栏用这一份，窗口图标走 Resource 引用同一文件 -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- 产品级发布形态：单个 exe（WPF 原生库也在里面，首次运行自解压到临时目录） -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <SatelliteResourceLanguages>zh-Hans;en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ra3Trainer.Core\Ra3Trainer.Core.csproj" />
+    <EmbeddedResource Include="..\..\tools\Dx9OverlayHarness\out\product\Ra3Overlay.dll" LogicalName="Ra3Overlay.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <OverlayNativeInput Include="..\..\tools\Dx9OverlayHarness\*.cpp;..\..\tools\Dx9OverlayHarness\*.h;..\..\tools\Dx9OverlayHarness\build.ps1;..\..\tools\Dx9OverlayHarness\vendor\**\*" />
+  </ItemGroup>
+  <Target Name="BuildProductOverlay" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'"
+          Inputs="@(OverlayNativeInput)"
+          Outputs="$(MSBuildProjectDirectory)\..\..\tools\Dx9OverlayHarness\out\product\Ra3Overlay.dll;$(MSBuildProjectDirectory)\..\..\tools\Dx9OverlayHarness\out\ProductTests.exe;$(MSBuildProjectDirectory)\..\..\tools\Dx9OverlayHarness\out\SHA256SUMS.txt">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\tools\Dx9OverlayHarness\build.ps1&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Iced" Version="1.21.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Themes\SarasaMonoSC-Regular.ttf" />
+    <!-- 游戏自带字体子集（取自本机 Red Alert 3 的 ChineseT.big，仅为个人本地使用而裁剪） -->
+    <Resource Include="Assets\app.ico" />
+    <!-- 游戏自带黑体已移除（2026-10-11）：它从未被任何 XAML 引用（UI 用系统字体 + 开源 SarasaMonoSC），
+         留着白占体积还有版权风险。 -->
+  </ItemGroup>
+</Project>

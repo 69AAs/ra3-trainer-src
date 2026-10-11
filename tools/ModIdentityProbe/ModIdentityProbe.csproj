@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- 生产就是 x86（游戏是 32 位）：模块表/PEB 必须在同位数下验证，别拿 x64 的自欺欺人。 -->
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <RootNamespace>ModIdentityProbe</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Ra3Trainer.Core/Ra3Trainer.Core.csproj" />
+  </ItemGroup>
+</Project>

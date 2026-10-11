@@ -1,0 +1,343 @@
+osd-draw-thread role=CreateDevice tid=125048 flags=0x00000020 hr=00000000 queryHr=00000000 flagsValid=1 DeviceType=1 hFocusWindow=00000000 hDeviceWindow=00001234 device=008222b8 source=CreateDevice-entry flagsSource=GetCreationParameters deviceWindowSource=CreateDevice-parameters requestedFlags=0x00000020 requestedType=1 requestedFocus=00000000
+osd-draw-thread role=Present tid=125048 creationTid=125048 flags=0x00000020 match=1 multithreaded=0 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-draw-step name=GetBackBuffer hr=00000000
+osd-draw-step name=GetBackBufferDesc hr=00000000
+osd-draw-desc name=target Format=22 Pool=0 MultiSampleType=4 MultiSampleQuality=0 Usage=1 Width=800 Height=240
+osd-draw-step name=CreateSourceSurface hr=00000000
+osd-draw-step name=GetSourceDesc hr=00000000
+osd-draw-desc name=source Format=22 Pool=2 MultiSampleType=0 MultiSampleQuality=0 Usage=0 Width=580 Height=32
+osd-draw-legacy-restrictions pool=0 format=0 multisample=1 depth=0 bounds=0 scaling=0 sourceRect=0,0,580,32 targetPoint=10,10 sourceLocked=0 dcHeld=0 conclusion=violated-listed-restriction UpdateSurface=not-called
+osd-draw-step name=GetSwapChain hr=00000000
+osd-draw-step name=GetPresentParameters hr=00000000
+osd-draw-present BackBufferFormat=22 MultiSampleType=4 MultiSampleQuality=0 SwapEffect=1 Width=800 Height=240 Windowed=1
+osd-draw-step name=GetCreationParameters hr=00000000
+osd-draw-step name=GetDirect3D hr=00000000
+osd-draw-step name=CheckDeviceMultiSampleType hr=00000000
+osd-draw-msaa adapter=0 deviceType=1 format=22 windowed=1 type=4 quality=0 qualityLevels=1 hr=00000000
+osd-draw-step name=GetDeviceCaps hr=00000000
+osd-draw-step name=TargetBounds hr=00000000
+osd-draw-step name=GetSourceDC hr=00000000
+osd-draw-step name=GDI-Text hr=00000000
+osd-draw-step name=ReleaseSourceDC hr=00000000
+osd-draw-step name=CreateTexture hr=00000000
+osd-draw-step name=LockSource hr=00000000
+osd-draw-step name=LockTexture hr=00000000
+osd-draw-step name=UnlockSource hr=00000000
+osd-draw-step name=UnlockTexture hr=00000000
+osd-draw-step name=CreateStateBlock hr=00000000
+osd-draw-step name=CaptureStateBlock hr=00000000
+osd-draw-step name=GetRenderTarget0 hr=00000000
+osd-draw-step name=GetRenderTarget1 hr=00000000
+osd-draw-step name=GetRenderTarget2 hr=00000000
+osd-draw-step name=GetRenderTarget3 hr=00000000
+osd-draw-step name=GetDepthStencilSurface hr=00000000
+osd-draw-step name=BeginScene hr=00000000
+osd-draw-step name=SetDepthStencilSurface hr=00000000
+osd-draw-step name=SetRenderTarget1-null hr=00000000
+osd-draw-step name=SetRenderTarget2-null hr=00000000
+osd-draw-step name=SetRenderTarget3-null hr=00000000
+osd-draw-step name=SetRenderTarget0 hr=00000000
+osd-draw-step name=SetViewport hr=00000000
+osd-draw-step name=SetVertexShader hr=00000000
+osd-draw-step name=SetPixelShader hr=00000000
+osd-draw-step name=SetFVF hr=00000000
+osd-draw-step name=SetStreamSourceFreq0 hr=00000000
+osd-draw-step name=SetStreamSourceFreq1 hr=00000000
+osd-draw-step name=SetStreamSourceFreq2 hr=00000000
+osd-draw-step name=SetStreamSourceFreq3 hr=00000000
+osd-draw-step name=SetStreamSourceFreq4 hr=00000000
+osd-draw-step name=SetStreamSourceFreq5 hr=00000000
+osd-draw-step name=SetStreamSourceFreq6 hr=00000000
+osd-draw-step name=SetStreamSourceFreq7 hr=00000000
+osd-draw-step name=SetStreamSourceFreq8 hr=00000000
+osd-draw-step name=SetStreamSourceFreq9 hr=00000000
+osd-draw-step name=SetStreamSourceFreq10 hr=00000000
+osd-draw-step name=SetStreamSourceFreq11 hr=00000000
+osd-draw-step name=SetStreamSourceFreq12 hr=00000000
+osd-draw-step name=SetStreamSourceFreq13 hr=00000000
+osd-draw-step name=SetStreamSourceFreq14 hr=00000000
+osd-draw-step name=SetStreamSourceFreq15 hr=00000000
+osd-draw-step name=SetRenderState-7 hr=00000000
+osd-draw-step name=SetRenderState-14 hr=00000000
+osd-draw-step name=SetRenderState-15 hr=00000000
+osd-draw-step name=SetRenderState-27 hr=00000000
+osd-draw-step name=SetRenderState-206 hr=00000000
+osd-draw-step name=SetRenderState-52 hr=00000000
+osd-draw-step name=SetRenderState-22 hr=00000000
+osd-draw-step name=SetRenderState-8 hr=00000000
+osd-draw-step name=SetRenderState-9 hr=00000000
+osd-draw-step name=SetRenderState-28 hr=00000000
+osd-draw-step name=SetRenderState-137 hr=00000000
+osd-draw-step name=SetRenderState-29 hr=00000000
+osd-draw-step name=SetRenderState-152 hr=00000000
+osd-draw-step name=SetRenderState-174 hr=00000000
+osd-draw-step name=SetRenderState-168 hr=00000000
+osd-draw-step name=SetRenderState-194 hr=00000000
+osd-draw-step name=SetRenderState-161 hr=00000000
+osd-draw-step name=SetRenderState-162 hr=00000000
+osd-draw-step name=SetRenderState-128 hr=00000000
+osd-draw-step name=SetTexture hr=00000000
+osd-draw-step name=SetTextureStageState0-1 hr=00000000
+osd-draw-step name=SetTextureStageState0-2 hr=00000000
+osd-draw-step name=SetTextureStageState0-4 hr=00000000
+osd-draw-step name=SetTextureStageState0-5 hr=00000000
+osd-draw-step name=SetTextureStageState0-11 hr=00000000
+osd-draw-step name=SetTextureStageState0-24 hr=00000000
+osd-draw-step name=SetTextureStageState0-28 hr=00000000
+osd-draw-step name=DisableTextureStage1-color hr=00000000
+osd-draw-step name=DisableTextureStage1-alpha hr=00000000
+osd-draw-step name=SetSamplerState0-6 hr=00000000
+osd-draw-step name=SetSamplerState0-5 hr=00000000
+osd-draw-step name=SetSamplerState0-7 hr=00000000
+osd-draw-step name=SetSamplerState0-1 hr=00000000
+osd-draw-step name=SetSamplerState0-2 hr=00000000
+osd-draw-step name=SetSamplerState0-11 hr=00000000
+osd-draw-step name=DrawPrimitiveUP hr=00000000
+osd-draw-step name=EndScene hr=00000000
+osd-draw-step name=RestoreDepth-unbind hr=00000000
+osd-draw-step name=RestoreRT-unbind1 hr=00000000
+osd-draw-step name=RestoreRT-unbind2 hr=00000000
+osd-draw-step name=RestoreRT-unbind3 hr=00000000
+osd-draw-step name=RestoreRenderTarget0 hr=00000000
+osd-draw-step name=RestoreRenderTarget1 hr=00000000
+osd-draw-step name=RestoreRenderTarget2 hr=00000000
+osd-draw-step name=RestoreRenderTarget3 hr=00000000
+osd-draw-step name=RestoreDepth hr=00000000
+osd-draw-step name=ApplyStateBlock hr=00000000
+osd-draw-step name=Present-blit hr=00000000
+osd-frame-presented
+osd-stop-disabled retained-until-process-exit
+osd-draw-thread role=CreateDevice tid=125048 flags=0x00000020 hr=00000000 queryHr=00000000 flagsValid=1 DeviceType=1 hFocusWindow=00000000 hDeviceWindow=00001234 device=008222b8 source=CreateDevice-entry flagsSource=GetCreationParameters deviceWindowSource=CreateDevice-parameters requestedFlags=0x00000020 requestedType=1 requestedFocus=00000000
+osd-draw-thread role=Present tid=128272 creationTid=125048 flags=0x00000020 match=0 multithreaded=0 allowed=0 device=008222b8 source=CreateDevice-entry decision=local-policy-needs-readings
+osd-draw-step name=OwnerThread hr=8876086c
+osd-draw-failure-detail name=OwnerThread hr=8876086c reason=local-policy-needs-readings
+osd-draw-failed hr=8876086c disabled
+osd-draw-thread role=Present tid=126080 creationTid=125048 flags=0x00000020 match=0 multithreaded=0 allowed=0 device=008222b8 source=CreateDevice-entry decision=local-policy-needs-readings
+osd-draw-thread role=CreateDevice tid=125048 flags=0x00000024 hr=00000000 queryHr=00000000 flagsValid=1 DeviceType=1 hFocusWindow=00000000 hDeviceWindow=00001234 device=008222b8 source=CreateDevice-entry flagsSource=GetCreationParameters deviceWindowSource=CreateDevice-parameters requestedFlags=0x00000024 requestedType=1 requestedFocus=00000000
+osd-draw-thread role=Present tid=125048 creationTid=125048 flags=0x00000024 match=1 multithreaded=1 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-draw-step name=GetBackBuffer hr=00000000
+osd-draw-step name=GetBackBufferDesc hr=00000000
+osd-draw-desc name=target Format=22 Pool=0 MultiSampleType=4 MultiSampleQuality=0 Usage=1 Width=800 Height=240
+osd-draw-step name=CreateSourceSurface hr=00000000
+osd-draw-step name=GetSourceDesc hr=00000000
+osd-draw-desc name=source Format=22 Pool=2 MultiSampleType=0 MultiSampleQuality=0 Usage=0 Width=580 Height=32
+osd-draw-legacy-restrictions pool=0 format=0 multisample=1 depth=0 bounds=0 scaling=0 sourceRect=0,0,580,32 targetPoint=10,10 sourceLocked=0 dcHeld=0 conclusion=violated-listed-restriction UpdateSurface=not-called
+osd-draw-step name=GetSwapChain hr=00000000
+osd-draw-step name=GetPresentParameters hr=00000000
+osd-draw-present BackBufferFormat=22 MultiSampleType=4 MultiSampleQuality=0 SwapEffect=1 Width=800 Height=240 Windowed=1
+osd-draw-step name=GetCreationParameters hr=00000000
+osd-draw-step name=GetDirect3D hr=00000000
+osd-draw-step name=CheckDeviceMultiSampleType hr=00000000
+osd-draw-msaa adapter=0 deviceType=1 format=22 windowed=1 type=4 quality=0 qualityLevels=1 hr=00000000
+osd-draw-step name=GetDeviceCaps hr=00000000
+osd-draw-step name=TargetBounds hr=00000000
+osd-draw-step name=GetSourceDC hr=00000000
+osd-draw-step name=GDI-Text hr=00000000
+osd-draw-step name=ReleaseSourceDC hr=00000000
+osd-draw-step name=CreateTexture hr=00000000
+osd-draw-step name=LockSource hr=00000000
+osd-draw-step name=LockTexture hr=00000000
+osd-draw-step name=UnlockSource hr=00000000
+osd-draw-step name=UnlockTexture hr=00000000
+osd-draw-step name=CreateStateBlock hr=00000000
+osd-draw-step name=CaptureStateBlock hr=00000000
+osd-draw-step name=GetRenderTarget0 hr=00000000
+osd-draw-step name=GetRenderTarget1 hr=00000000
+osd-draw-step name=GetRenderTarget2 hr=00000000
+osd-draw-step name=GetRenderTarget3 hr=00000000
+osd-draw-step name=GetDepthStencilSurface hr=00000000
+osd-draw-step name=BeginScene hr=00000000
+osd-draw-step name=SetDepthStencilSurface hr=00000000
+osd-draw-step name=SetRenderTarget1-null hr=00000000
+osd-draw-step name=SetRenderTarget2-null hr=00000000
+osd-draw-step name=SetRenderTarget3-null hr=00000000
+osd-draw-step name=SetRenderTarget0 hr=00000000
+osd-draw-step name=SetViewport hr=00000000
+osd-draw-step name=SetVertexShader hr=00000000
+osd-draw-step name=SetPixelShader hr=00000000
+osd-draw-step name=SetFVF hr=00000000
+osd-draw-step name=SetStreamSourceFreq0 hr=00000000
+osd-draw-step name=SetStreamSourceFreq1 hr=00000000
+osd-draw-step name=SetStreamSourceFreq2 hr=00000000
+osd-draw-step name=SetStreamSourceFreq3 hr=00000000
+osd-draw-step name=SetStreamSourceFreq4 hr=00000000
+osd-draw-step name=SetStreamSourceFreq5 hr=00000000
+osd-draw-step name=SetStreamSourceFreq6 hr=00000000
+osd-draw-step name=SetStreamSourceFreq7 hr=00000000
+osd-draw-step name=SetStreamSourceFreq8 hr=00000000
+osd-draw-step name=SetStreamSourceFreq9 hr=00000000
+osd-draw-step name=SetStreamSourceFreq10 hr=00000000
+osd-draw-step name=SetStreamSourceFreq11 hr=00000000
+osd-draw-step name=SetStreamSourceFreq12 hr=00000000
+osd-draw-step name=SetStreamSourceFreq13 hr=00000000
+osd-draw-step name=SetStreamSourceFreq14 hr=00000000
+osd-draw-step name=SetStreamSourceFreq15 hr=00000000
+osd-draw-step name=SetRenderState-7 hr=00000000
+osd-draw-step name=SetRenderState-14 hr=00000000
+osd-draw-step name=SetRenderState-15 hr=00000000
+osd-draw-step name=SetRenderState-27 hr=00000000
+osd-draw-step name=SetRenderState-206 hr=00000000
+osd-draw-step name=SetRenderState-52 hr=00000000
+osd-draw-step name=SetRenderState-22 hr=00000000
+osd-draw-step name=SetRenderState-8 hr=00000000
+osd-draw-step name=SetRenderState-9 hr=00000000
+osd-draw-step name=SetRenderState-28 hr=00000000
+osd-draw-step name=SetRenderState-137 hr=00000000
+osd-draw-step name=SetRenderState-29 hr=00000000
+osd-draw-step name=SetRenderState-152 hr=00000000
+osd-draw-step name=SetRenderState-174 hr=00000000
+osd-draw-step name=SetRenderState-168 hr=00000000
+osd-draw-step name=SetRenderState-194 hr=00000000
+osd-draw-step name=SetRenderState-161 hr=00000000
+osd-draw-step name=SetRenderState-162 hr=00000000
+osd-draw-step name=SetRenderState-128 hr=00000000
+osd-draw-step name=SetTexture hr=00000000
+osd-draw-step name=SetTextureStageState0-1 hr=00000000
+osd-draw-step name=SetTextureStageState0-2 hr=00000000
+osd-draw-step name=SetTextureStageState0-4 hr=00000000
+osd-draw-step name=SetTextureStageState0-5 hr=00000000
+osd-draw-step name=SetTextureStageState0-11 hr=00000000
+osd-draw-step name=SetTextureStageState0-24 hr=00000000
+osd-draw-step name=SetTextureStageState0-28 hr=00000000
+osd-draw-step name=DisableTextureStage1-color hr=00000000
+osd-draw-step name=DisableTextureStage1-alpha hr=00000000
+osd-draw-step name=SetSamplerState0-6 hr=00000000
+osd-draw-step name=SetSamplerState0-5 hr=00000000
+osd-draw-step name=SetSamplerState0-7 hr=00000000
+osd-draw-step name=SetSamplerState0-1 hr=00000000
+osd-draw-step name=SetSamplerState0-2 hr=00000000
+osd-draw-step name=SetSamplerState0-11 hr=00000000
+osd-draw-step name=DrawPrimitiveUP hr=00000000
+osd-draw-step name=EndScene hr=00000000
+osd-draw-step name=RestoreDepth-unbind hr=00000000
+osd-draw-step name=RestoreRT-unbind1 hr=00000000
+osd-draw-step name=RestoreRT-unbind2 hr=00000000
+osd-draw-step name=RestoreRT-unbind3 hr=00000000
+osd-draw-step name=RestoreRenderTarget0 hr=00000000
+osd-draw-step name=RestoreRenderTarget1 hr=00000000
+osd-draw-step name=RestoreRenderTarget2 hr=00000000
+osd-draw-step name=RestoreRenderTarget3 hr=00000000
+osd-draw-step name=RestoreDepth hr=00000000
+osd-draw-step name=ApplyStateBlock hr=00000000
+osd-draw-step name=Present-blit hr=00000000
+osd-frame-presented
+osd-stop-disabled retained-until-process-exit
+osd-draw-thread role=CreateDevice tid=125048 flags=0x00000024 hr=00000000 queryHr=00000000 flagsValid=1 DeviceType=1 hFocusWindow=00000000 hDeviceWindow=00001234 device=008222b8 source=CreateDevice-entry flagsSource=GetCreationParameters deviceWindowSource=CreateDevice-parameters requestedFlags=0x00000024 requestedType=1 requestedFocus=00000000
+osd-draw-thread role=Present tid=132060 creationTid=125048 flags=0x00000024 match=0 multithreaded=1 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-draw-step name=GetBackBuffer hr=00000000
+osd-draw-step name=GetBackBufferDesc hr=00000000
+osd-draw-desc name=target Format=22 Pool=0 MultiSampleType=4 MultiSampleQuality=0 Usage=1 Width=800 Height=240
+osd-draw-step name=CreateSourceSurface hr=00000000
+osd-draw-step name=GetSourceDesc hr=00000000
+osd-draw-desc name=source Format=22 Pool=2 MultiSampleType=0 MultiSampleQuality=0 Usage=0 Width=580 Height=32
+osd-draw-legacy-restrictions pool=0 format=0 multisample=1 depth=0 bounds=0 scaling=0 sourceRect=0,0,580,32 targetPoint=10,10 sourceLocked=0 dcHeld=0 conclusion=violated-listed-restriction UpdateSurface=not-called
+osd-draw-step name=GetSwapChain hr=00000000
+osd-draw-step name=GetPresentParameters hr=00000000
+osd-draw-present BackBufferFormat=22 MultiSampleType=4 MultiSampleQuality=0 SwapEffect=1 Width=800 Height=240 Windowed=1
+osd-draw-step name=GetCreationParameters hr=00000000
+osd-draw-step name=GetDirect3D hr=00000000
+osd-draw-step name=CheckDeviceMultiSampleType hr=00000000
+osd-draw-msaa adapter=0 deviceType=1 format=22 windowed=1 type=4 quality=0 qualityLevels=1 hr=00000000
+osd-draw-step name=GetDeviceCaps hr=00000000
+osd-draw-step name=TargetBounds hr=00000000
+osd-draw-step name=GetSourceDC hr=00000000
+osd-draw-step name=GDI-Text hr=00000000
+osd-draw-step name=ReleaseSourceDC hr=00000000
+osd-draw-step name=CreateTexture hr=00000000
+osd-draw-step name=LockSource hr=00000000
+osd-draw-step name=LockTexture hr=00000000
+osd-draw-step name=UnlockSource hr=00000000
+osd-draw-step name=UnlockTexture hr=00000000
+osd-draw-step name=CreateStateBlock hr=00000000
+osd-draw-step name=CaptureStateBlock hr=00000000
+osd-draw-step name=GetRenderTarget0 hr=00000000
+osd-draw-step name=GetRenderTarget1 hr=00000000
+osd-draw-step name=GetRenderTarget2 hr=00000000
+osd-draw-step name=GetRenderTarget3 hr=00000000
+osd-draw-step name=GetDepthStencilSurface hr=00000000
+osd-draw-step name=BeginScene hr=00000000
+osd-draw-step name=SetDepthStencilSurface hr=00000000
+osd-draw-step name=SetRenderTarget1-null hr=00000000
+osd-draw-step name=SetRenderTarget2-null hr=00000000
+osd-draw-step name=SetRenderTarget3-null hr=00000000
+osd-draw-step name=SetRenderTarget0 hr=00000000
+osd-draw-step name=SetViewport hr=00000000
+osd-draw-step name=SetVertexShader hr=00000000
+osd-draw-step name=SetPixelShader hr=00000000
+osd-draw-step name=SetFVF hr=00000000
+osd-draw-step name=SetStreamSourceFreq0 hr=00000000
+osd-draw-step name=SetStreamSourceFreq1 hr=00000000
+osd-draw-step name=SetStreamSourceFreq2 hr=00000000
+osd-draw-step name=SetStreamSourceFreq3 hr=00000000
+osd-draw-step name=SetStreamSourceFreq4 hr=00000000
+osd-draw-step name=SetStreamSourceFreq5 hr=00000000
+osd-draw-step name=SetStreamSourceFreq6 hr=00000000
+osd-draw-step name=SetStreamSourceFreq7 hr=00000000
+osd-draw-step name=SetStreamSourceFreq8 hr=00000000
+osd-draw-step name=SetStreamSourceFreq9 hr=00000000
+osd-draw-step name=SetStreamSourceFreq10 hr=00000000
+osd-draw-step name=SetStreamSourceFreq11 hr=00000000
+osd-draw-step name=SetStreamSourceFreq12 hr=00000000
+osd-draw-step name=SetStreamSourceFreq13 hr=00000000
+osd-draw-step name=SetStreamSourceFreq14 hr=00000000
+osd-draw-step name=SetStreamSourceFreq15 hr=00000000
+osd-draw-step name=SetRenderState-7 hr=00000000
+osd-draw-step name=SetRenderState-14 hr=00000000
+osd-draw-step name=SetRenderState-15 hr=00000000
+osd-draw-step name=SetRenderState-27 hr=00000000
+osd-draw-step name=SetRenderState-206 hr=00000000
+osd-draw-step name=SetRenderState-52 hr=00000000
+osd-draw-step name=SetRenderState-22 hr=00000000
+osd-draw-step name=SetRenderState-8 hr=00000000
+osd-draw-step name=SetRenderState-9 hr=00000000
+osd-draw-step name=SetRenderState-28 hr=00000000
+osd-draw-step name=SetRenderState-137 hr=00000000
+osd-draw-step name=SetRenderState-29 hr=00000000
+osd-draw-step name=SetRenderState-152 hr=00000000
+osd-draw-step name=SetRenderState-174 hr=00000000
+osd-draw-step name=SetRenderState-168 hr=00000000
+osd-draw-step name=SetRenderState-194 hr=00000000
+osd-draw-step name=SetRenderState-161 hr=00000000
+osd-draw-step name=SetRenderState-162 hr=00000000
+osd-draw-step name=SetRenderState-128 hr=00000000
+osd-draw-step name=SetTexture hr=00000000
+osd-draw-step name=SetTextureStageState0-1 hr=00000000
+osd-draw-step name=SetTextureStageState0-2 hr=00000000
+osd-draw-step name=SetTextureStageState0-4 hr=00000000
+osd-draw-step name=SetTextureStageState0-5 hr=00000000
+osd-draw-step name=SetTextureStageState0-11 hr=00000000
+osd-draw-step name=SetTextureStageState0-24 hr=00000000
+osd-draw-step name=SetTextureStageState0-28 hr=00000000
+osd-draw-step name=DisableTextureStage1-color hr=00000000
+osd-draw-step name=DisableTextureStage1-alpha hr=00000000
+osd-draw-step name=SetSamplerState0-6 hr=00000000
+osd-draw-step name=SetSamplerState0-5 hr=00000000
+osd-draw-step name=SetSamplerState0-7 hr=00000000
+osd-draw-step name=SetSamplerState0-1 hr=00000000
+osd-draw-step name=SetSamplerState0-2 hr=00000000
+osd-draw-step name=SetSamplerState0-11 hr=00000000
+osd-draw-step name=DrawPrimitiveUP hr=00000000
+osd-draw-step name=EndScene hr=00000000
+osd-draw-step name=RestoreDepth-unbind hr=00000000
+osd-draw-step name=RestoreRT-unbind1 hr=00000000
+osd-draw-step name=RestoreRT-unbind2 hr=00000000
+osd-draw-step name=RestoreRT-unbind3 hr=00000000
+osd-draw-step name=RestoreRenderTarget0 hr=00000000
+osd-draw-step name=RestoreRenderTarget1 hr=00000000
+osd-draw-step name=RestoreRenderTarget2 hr=00000000
+osd-draw-step name=RestoreRenderTarget3 hr=00000000
+osd-draw-step name=RestoreDepth hr=00000000
+osd-draw-step name=ApplyStateBlock hr=00000000
+osd-draw-step name=Present-blit hr=00000000
+osd-frame-presented
+osd-draw-thread role=Present tid=132352 creationTid=125048 flags=0x00000024 match=0 multithreaded=1 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-stop-disabled retained-until-process-exit
+osd-draw-thread role=Present tid=132708 creationTid=125048 flags=0x00000024 match=0 multithreaded=1 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-draw-thread role=Present tid=125336 creationTid=125048 flags=0x00000004 match=0 multithreaded=1 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-draw-step name=GetBackBuffer hr=80004005
+osd-draw-failure-detail name=GetBackBuffer hr=80004005
+osd-draw-failed hr=80004005 disabled
+osd-draw-thread role=Present tid=12160 creationTid=125048 flags=0x00000004 match=0 multithreaded=1 allowed=1 device=008222b8 source=CreateDevice-entry decision=allow
+osd-draw-thread role=CreateDevice tid=125048 flags=0x00000000 hr=00000000 queryHr=80004005 flagsValid=0 DeviceType=0 hFocusWindow=00000000 hDeviceWindow=00001234 device=008222b8 source=CreateDevice-entry flagsSource=GetCreationParameters deviceWindowSource=CreateDevice-parameters requestedFlags=0x00000004 requestedType=1 requestedFocus=00000000
+osd-draw-thread role=CreateDevice tid=125048 flags=0x00000020 hr=00000000 queryHr=00000000 flagsValid=1 DeviceType=1 hFocusWindow=00000000 hDeviceWindow=00001234 device=008222b8 source=CreateDevice-entry flagsSource=GetCreationParameters deviceWindowSource=CreateDevice-parameters requestedFlags=0x00000004 requestedType=1 requestedFocus=00000000
+osd-install-refused foreign-entry

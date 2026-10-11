@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>FloatingWindow.Smoke</AssemblyName><OutputType>Exe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RuntimeIdentifier>win-x64</RuntimeIdentifier></PropertyGroup>
+  <ItemGroup><Compile Include="../../tests/FloatingWindow.Smoke/SmokeDependencies.cs" Link="SmokeDependencies.cs"/></ItemGroup>
+  <ItemGroup Condition="'$(Baseline)' != 'true'"><ProjectReference Include="../../src/Ra3Trainer.App/Ra3Trainer.App.csproj" AdditionalProperties="RuntimeIdentifier=win-x64"/></ItemGroup>
+  <PropertyGroup Condition="'$(Baseline)' == 'true'"><DefineConstants>$(DefineConstants);BASELINE</DefineConstants></PropertyGroup>
+  <ItemGroup Condition="'$(Baseline)' == 'true'">
+    <Reference Include="Ra3Trainer.App"><HintPath>../../tests/OverlayWiring.Tests/bin/Release/net8.0-windows/win-x64/Ra3Trainer.App.dll</HintPath></Reference>
+    <Reference Include="Ra3Trainer.Core"><HintPath>../../tests/OverlayWiring.Tests/bin/Release/net8.0-windows/win-x64/Ra3Trainer.Core.dll</HintPath></Reference>
+    <Reference Include="Iced"><HintPath>../../tests/OverlayWiring.Tests/bin/Release/net8.0-windows/win-x64/Iced.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

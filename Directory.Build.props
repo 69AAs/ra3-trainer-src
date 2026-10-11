@@ -1,0 +1,17 @@
+<Project>
+  <!-- 版本号单一来源：要发新版只改这一行（Product/Company/版权/标题都从各项目继承）。 -->
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>红警3修改器</Product>
+    <AssemblyTitle>红警3修改器</AssemblyTitle>
+    <!-- 署名 = 作者的 GitHub 用户名（用户 2026-10-11 指定：https://github.com/69AAs）。 -->
+    <Company>69AAs</Company>
+    <Authors>69AAs</Authors>
+    <Copyright>© 2026 69AAs</Copyright>
+    <NeutralLanguage>zh-Hans</NeutralLanguage>
+    <SatelliteResourceLanguages>zh-Hans;en</SatelliteResourceLanguages>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+</Project>

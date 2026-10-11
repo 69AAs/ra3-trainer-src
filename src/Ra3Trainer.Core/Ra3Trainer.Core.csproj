@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <!-- 32 位进程的 MEMORY_BASIC_INFORMATION 是 28 字节（x64 是 48）。WIN64 这个符号
+         Roslyn 不会自动定义，原来靠 #if WIN64 的分支在任何构建里都是死代码：
+         x64 构建下会少 20 字节，VirtualQueryEx 直接失败、区域枚举变成空。
+         本工具发布的就是 32 位（游戏是 32 位），这里给 x64 构建补上定义，别留静默坑。 -->
+    <DefineConstants Condition="'$(RuntimeIdentifier)' == 'win-x64' Or '$(PlatformTarget)' == 'x64'">$(DefineConstants);WIN64</DefineConstants>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Iced" Version="1.21.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\code.txt" />
+    <EmbeddedResource Include="Assets\unit-catalog-full.txt" />
+    <EmbeddedResource Include="Assets\unit-catalog-props.txt" />
+    <!-- 内部英文名 → 中文名（取自日冕 WorldBuilder 的 ObjWndTrans.json），用于把游戏里读到的单位自动命名 -->
+    <EmbeddedResource Include="Assets\unit-names.txt" />
+    <EmbeddedResource Include="Assets\unit-internal-names.txt" />
+    <EmbeddedResource Include="Assets\trainer_report.json" LogicalName="Ra3Trainer.Core.Assets.trainer_report.json" />
+    <EmbeddedResource Include="Assets\00_bootstrap.aa" LogicalName="Ra3Trainer.Core.Assets.00_bootstrap.aa" />
+  </ItemGroup>
+</Project>

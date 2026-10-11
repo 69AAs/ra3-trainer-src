@@ -1,0 +1,40 @@
+<!doctype html><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:360px;height:440px;background:#111;color:#fff;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-direction:column}
+.top{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #333}
+.top div{padding:10px 0;text-align:center;font-size:10.5px;letter-spacing:1.5px;color:#777;font-weight:700}
+.top div.on{color:#111;background:#D0021B}
+.meta{display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:11px 14px 7px;border-bottom:1px solid #333}
+.meta b{font-size:14.5px;letter-spacing:.4px}
+.meta span{font-size:10px;color:#888;font-variant-numeric:tabular-nums}
+.cols{display:grid;grid-template-columns:14px 1fr auto auto;gap:0 8px;padding:5px 14px 3px;font-size:8.5px;letter-spacing:1.4px;color:#666}
+.list{flex:1;overflow:hidden}
+.r{display:grid;grid-template-columns:14px 1fr auto auto;align-items:center;gap:0 8px;min-height:26.5px;padding:0 14px;border-bottom:1px solid #222}
+.r.cur{background:#fff;color:#111}
+.nm{font-size:12px}
+.r.cur .nm{font-weight:700}
+.dt,.sp{display:none}
+.val{font-size:10px;color:#888;font-variant-numeric:tabular-nums}
+.r.cur .val{color:#666}
+.led{width:6px;height:6px;border-radius:50%;background:#333}
+.led.on{background:#D0021B}
+.btn{font-size:9px;letter-spacing:1.5px;color:#888;text-transform:uppercase}
+.r.cur .btn{color:#D0021B}
+.foot{display:grid;grid-template-columns:1fr auto;padding:7px 14px;border-top:1px solid #333;font-size:8.5px;letter-spacing:1.5px;color:#666}
+</style>
+<div class="top"><div>01 启动</div><div class="on">02 增援</div><div>03 功能</div><div>04 诊断</div></div>
+<div class="meta"><b>红警3 修改器</b><span>ENABLED 3/31 · PID 82416 · HOOK 22/22</span></div>
+<div class="cols"><span></span><span>功能</span><span>值</span><span>命令</span></div>
+<div class="list"><div class="r cur"><span class="led"></span><span class="nm">一键启动并装载</span><span class="dt">本页主操作</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">检测进程</span><span class="dt">只读检测</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">装 Patch</span><span class="dt">装载 22 个 hook</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">一键全撤</span><span class="dt">紧急还原</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">启动器</span><span class="dt">游戏本体 · Red Alert 3</span><span class="sp"></span></div>
+<div class="r"><span class="led"></span><span class="nm">重新扫描启动器</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led on"></span><span class="nm">启动后自动开面板</span><span class="sp"></span><span class="val">已启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led on"></span><span class="nm">装 patch 前校验</span><span class="sp"></span><span class="val">已启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led"></span><span class="nm">允许非标准版本</span><span class="sp"></span><span class="val">未启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led on"></span><span class="nm">崩溃自动取证</span><span class="sp"></span><span class="val">已启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led"></span><span class="nm">安全采样（只读）</span><span class="sp"></span><span class="val">未启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led"></span><span class="nm">面板位置</span><span class="sp"></span><span class="val">24, 24</span></div></div>
+<div class="foot"><span>NUM8/2 选行 · NUM5 执行</span><span>1·3·7·9 收藏</span></div>

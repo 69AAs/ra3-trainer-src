@@ -1,0 +1,259 @@
+<Window Icon="pack://application:,,,/Ra3Trainer.App;component/Assets/app.ico" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:converters="clr-namespace:Ra3Trainer.App.Converters" xmlns:views="clr-namespace:Ra3Trainer.App.Views" x:Class="Ra3Trainer.App.FloatingWindow" Title="{x:Static local:AppInfo.PanelTitleLine}" xmlns:local="clr-namespace:Ra3Trainer.App" WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False" ShowActivated="False" ResizeMode="NoResize" SizeToContent="Manual" Width="360" Height="440" FontSize="12" FontFamily="{StaticResource AppFont}" ToolTipService.IsEnabled="False" ContextMenuService.IsEnabled="False">
+  <Window.Resources>
+    <!-- ScrollBar has a framework-provided context menu even without XAML menu markup. -->
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource {x:Type ScrollBar}}">
+      <Setter Property="ContextMenu" Value="{x:Null}"/>
+      <Setter Property="ContextMenuService.IsEnabled" Value="False"/>
+    </Style>
+    <converters:ConnectionStateToBrushConverter x:Key="ConnectionStateToBrushConverter"/>
+    <converters:BooleanToBrushConverter x:Key="LedBrush" TrueBrush="{StaticResource LedOnBrush}" FalseBrush="{StaticResource LedOffBrush}"/>
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    <!-- 面板页签：四个页签共用的外形；选中态各自一份触发条件（与主窗同一套名字）。 -->
+    <!-- 面板页签：外形扁平（不填充），当前页签只靠"强化色文字 + 2px 边条"指示 ⇒ 不跟列表行的当前条抢。 -->
+    <!-- 指挥台页签：编号 + 工业窄体，当前页签 = 琥珀文字 + 3px 琥珀竖条（不填充） -->
+    <Style x:Key="PanelNavButtonBase" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="MinWidth" Value="0"/>
+      <Setter Property="FontFamily" Value="Bahnschrift, Segoe UI"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="3,0,0,0"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource TextTertiaryBrush}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+              <ContentPresenter HorizontalAlignment="Left" Margin="7,0,0,0" VerticalAlignment="Center"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- 面板行：1px 分隔线 + 高亮当前行，没有卡片容器。 -->
+    <!-- 面板行：固定 34px 行高；状态用 LED 灯（DENSITY>7 不许用"已启用/未启用"文字占一列）；
+         一行之内就是「当前条 + 灯 + 热键徽章 + 名称·副标题 + 按钮」，眼睛不用来回跳。没有卡片容器。 -->
+    <!-- 面板行：固定 34px 行高，一列到底，没有卡片容器。
+         解剖：当前条(2) 灯(14) 键徽章(28) 名称(Auto) · 副标题(*) 信息值(Auto) 按钮(Auto)
+         状态规则：开/关 → 只用灯（已启用/未启用不出文字）；其余 State 是信息值（启动器名、坐标）→ 出文字。 -->
+    <!-- 指挥台行：固定 34px，等宽键帽，当前行 = 琥珀竖条 + 琥珀染色底（不是灰底） -->
+    <DataTemplate x:Key="PanelRowTemplate">
+      <Border x:Name="RowBorders" Height="34" BorderBrush="{StaticResource GrooveBrush}" BorderThickness="0,0,0,1">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3"/>
+            <ColumnDefinition Width="13"/>
+            <ColumnDefinition Width="Auto"/>   <!-- 口径B：键帽列 Auto，行上没键时不占位（原固定30px空框把内容挤右） -->
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Border x:Name="CurrentBar" Grid.Column="0" Background="Transparent"/>
+          <Ellipse x:Name="RowStateDot" Grid.Column="1" Width="6" Height="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Ellipse.Style>
+              <Style TargetType="Ellipse">
+                <Setter Property="Fill" Value="{StaticResource LedOffBrush}"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding State}" Value="已启用"><Setter Property="Fill" Value="{StaticResource LedOnBrush}"/></DataTrigger>
+                  <DataTrigger Binding="{Binding State}" Value="未校验"><Setter Property="Fill" Value="{StaticResource WarningBrush}"/></DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Ellipse.Style>
+          </Ellipse>
+          <Border x:Name="RowKeyBox" Grid.Column="2" Margin="0,0,7,0" Padding="1,1" CornerRadius="3"
+                  BorderThickness="1" BorderBrush="{StaticResource CommandEdgeBrush}" VerticalAlignment="Center"
+                  Background="{StaticResource InkHoverBrush}">
+              <Border.Style>
+                <Style TargetType="Border">
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding KeyDisplay}" Value="">
+                      <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+            <TextBlock x:Name="RowKey" Text="{Binding KeyDisplay}" FontFamily="Consolas" FontSize="11"
+                       HorizontalAlignment="Center" Foreground="{StaticResource CommandTextBrush}"/>
+          </Border>
+          <TextBlock x:Name="RowLabel" Grid.Column="3" Text="{Binding Label}" FontSize="13"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{StaticResource TextPrimaryBrush}"/>
+          <TextBlock x:Name="RowDot" Grid.Column="4" Text="·" FontSize="11" Margin="6,0,6,0" VerticalAlignment="Center"
+                     Foreground="{StaticResource TextDisabledBrush}"/>
+          <TextBlock x:Name="RowDetail" Grid.Column="5" Text="{Binding Detail}" FontSize="11"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{StaticResource TextTertiaryBrush}"/>
+          <TextBlock x:Name="RowValue" Grid.Column="6" Text="{Binding State}" FontSize="11" Margin="8,0,0,0"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{StaticResource TextTertiaryBrush}"/>
+          <Button x:Name="RowButton" Grid.Column="7" Content="{Binding ButtonText}" FontSize="12" Padding="7,1" MinWidth="0"
+                  Margin="8,0,0,0" VerticalAlignment="Center" Focusable="False"
+                  Command="{Binding DataContext.ActivatePanelRowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                  CommandParameter="{Binding}" Visibility="Collapsed"/>
+        </Grid>
+      </Border>
+      <DataTemplate.Triggers>
+        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+          <!-- 用户 2026-10-06：白底要铺**整行**，不是只裹住文字块。 -->
+          <Setter TargetName="RowBorders" Property="Background" Value="White"/>
+          <Setter TargetName="CurrentBar" Property="Background" Value="{StaticResource CommandBrush}"/>
+          <Setter TargetName="RowLabel" Property="Background" Value="Transparent"/>
+          <Setter TargetName="RowLabel" Property="Foreground" Value="Black"/>
+          <Setter TargetName="RowLabel" Property="Padding" Value="0"/>
+          <Setter TargetName="RowDetail" Property="Foreground" Value="#404040"/>
+          <Setter TargetName="RowValue" Property="Foreground" Value="#303030"/>
+          <Setter TargetName="RowDot" Property="Foreground" Value="#808080"/>
+          <Setter TargetName="RowKey" Property="Foreground" Value="Black"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsCurrentUnit}" Value="True">
+          <!-- 2026-10-07：当前兵种坐在哪个槽 —— 绿色竖条（导航高亮是白底整行，两者可同时出现）。
+               和 IsCurrent 分开：IsCurrent 归导航器（8/2 走到哪），这个归行集（哪个槽装着当前兵种）。 -->
+          <Setter TargetName="CurrentBar" Property="Background" Value="{StaticResource LedOnBrush}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding KeyDisplay}" Value=""><Setter TargetName="RowKeyBox" Property="Visibility" Value="Collapsed"/></DataTrigger>
+        <DataTrigger Binding="{Binding Label}" Value=""><Setter TargetName="RowLabel" Property="Visibility" Value="Collapsed"/></DataTrigger>
+        <DataTrigger Binding="{Binding Detail}" Value="">
+          <Setter TargetName="RowDetail" Property="Visibility" Value="Collapsed"/>
+          <Setter TargetName="RowDot" Property="Visibility" Value="Collapsed"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value="已启用"><Setter TargetName="RowValue" Property="Visibility" Value="Collapsed"/></DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value="未启用"><Setter TargetName="RowValue" Property="Visibility" Value="Collapsed"/></DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value=""><Setter TargetName="RowValue" Property="Visibility" Value="Collapsed"/><Setter TargetName="RowStateDot" Property="Visibility" Value="Collapsed"/></DataTrigger>
+        <DataTrigger Binding="{Binding Kind}" Value="Action"><Setter TargetName="RowButton" Property="Visibility" Value="Visible"/></DataTrigger>
+        <DataTrigger Binding="{Binding Kind}" Value="Toggle"><Setter TargetName="RowButton" Property="Visibility" Value="Visible"/></DataTrigger>
+      </DataTemplate.Triggers>
+    </DataTemplate>
+  </Window.Resources>
+  <ContentControl x:Name="RootCard" Style="{StaticResource FloatCard}" Padding="0">
+    <Grid>
+      <DockPanel x:Name="BarPanel">
+        
+        <StackPanel DockPanel.Dock="Top" Margin="6">
+          <StackPanel.Style>
+            <Style TargetType="StackPanel">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers><DataTrigger Binding="{Binding IsCoordinateActionPending}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+            </Style>
+          </StackPanel.Style>
+          <TextBlock Text="{Binding CoordinateCountdownText}" TextWrapping="Wrap" Foreground="{StaticResource WarningBrush}"/>
+          <Button Content="取消后续坐标动作" Command="{Binding CancelCoordinateActionCommand}" Focusable="False"/>
+        </StackPanel>
+        <!-- 标题条：顶部 3px 琥珀规线 + 工业窄体标题 + 状态灯；右侧桌面按钮在面板模式下隐藏（游戏里点不到） -->
+        <!-- ===== 顶部页签：四等分网格（方向 C · Vignelli）。当前项红底黑字。 ===== -->
+        <Grid x:Name="PanelTabBar" DockPanel.Dock="Top" Margin="0,0,0,1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button Grid.Column="0" x:Name="Nav功能" Content="01 功能" Command="{Binding PanelPageCommand}" CommandParameter="功能">
+            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource PanelNavButtonBase}">
+              <Style.Triggers><DataTrigger Binding="{Binding OverlayPanelSection}" Value="功能">
+                <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+              </DataTrigger></Style.Triggers>
+            </Style></Button.Style>
+          </Button>
+          <Button Grid.Column="1" x:Name="Nav增援" Content="02 增援" Command="{Binding PanelPageCommand}" CommandParameter="增援">
+            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource PanelNavButtonBase}">
+              <Style.Triggers><DataTrigger Binding="{Binding OverlayPanelSection}" Value="增援">
+                <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+              </DataTrigger></Style.Triggers>
+            </Style></Button.Style>
+          </Button>
+          <Button Grid.Column="2" x:Name="Nav选单位" Content="03 选单位" Command="{Binding PanelPageCommand}" CommandParameter="选单位">
+            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource PanelNavButtonBase}">
+              <Style.Triggers><DataTrigger Binding="{Binding OverlayPanelSection}" Value="选单位">
+                <Setter Property="Background" Value="{StaticResource CommandBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+              </DataTrigger></Style.Triggers>
+            </Style></Button.Style>
+          </Button>
+        </Grid>
+
+        <!-- 标题 + 元信息（等宽）：一条到底，不用卡片 -->
+        <Border x:Name="DragHandle" DockPanel.Dock="Top" Background="{StaticResource TopBarBackgroundBrush}"
+                BorderBrush="{StaticResource SeparatorBrush}" BorderThickness="0,0,0,1"
+               
+               >
+          <Grid Margin="10,7,10,6">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="红警3 修改器" FontSize="14.5" FontWeight="Bold"
+                       Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <!-- 面板状态必须画出来：曾经"按 Ins 只看到一行文字在变、画面毫无变化"是用户实测点破的，
+                 夹具至今钉着"切面板模式位图必须变"。 -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+              <TextBlock Text="{Binding OverlayPanelTitle}" FontSize="10.5" VerticalAlignment="Center"
+                         Foreground="{StaticResource CommandTextBrush}" Margin="0,0,10,0"/>
+              <TextBlock Text="{Binding FeatureSummary}" FontFamily="Consolas" FontSize="10"
+                         VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                         Foreground="{StaticResource TextTertiaryBrush}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- 列头：只在"表格页"（功能 / 选中对象）显示。
+             增援页是指挥键位板（一行一个键 + 参数），没有"值/命令"两列 ——
+             在那里挂这个表头是假的，用户一眼看出"整个增援看着很乱"。 -->
+        <!-- DockPanel 的默认 Dock 是 **Left** ✗：这个列头原来没写 Dock ⇒ 它被停靠在左侧、吃掉 88px，
+             把后面的 ExpandedPanel 挤成 250 宽、整体右移 108px。而它只在"功能"页 Visible ⇒
+             所以只有功能页出现"左边空出一大片"（用户问了好几遍的那个）。必须显式 Dock="Top"。 -->
+        <Grid DockPanel.Dock="Top" Margin="10,4,10,2">
+          <Grid.Style>
+            <Style TargetType="Grid">
+              <Setter Property="Visibility" Value="Collapsed"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding OverlayPanelSection}" Value="功能">
+                  <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+
+              </Style.Triggers>
+            </Style>
+          </Grid.Style>
+          <!-- 列头必须和行模板（PanelRowTemplate 的 8 列）逐列一致，否则两条基准线天生差开
+               （列头 4 列 / 行 8 列 ⇒ 差 ~90px）。用户问了四遍"功能页左边空出那么多"，根因就在这。 -->
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3"/><ColumnDefinition Width="13"/>
+            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="3" Text="功能" FontSize="8.5" Foreground="{StaticResource TextTertiaryBrush}"/>
+          <TextBlock Grid.Column="6" Text="值" FontSize="8.5" Margin="8,0,0,0" Foreground="{StaticResource TextTertiaryBrush}"/>
+          <TextBlock Grid.Column="7" Text="命令" FontSize="8.5" Margin="8,0,0,0" MinWidth="30" Foreground="{StaticResource TextTertiaryBrush}"/>
+        </Grid>
+
+        <Grid x:Name="KeyLegend" DockPanel.Dock="Bottom" Margin="10,4,10,5">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <!-- 页脚图例：这行是固定宽度（360px 面板、9px Consolas）。2026-10-07 试过加「· NUM1 心灵控制」，
+               渲染出来「NUM1 夺」被挤进右边那组（截图实测），所以撤掉。心灵控制直通键的去处是：
+               功能页页头「Num1 心灵控制 · 7/9 换页」+「心灵控制」行 Detail「Num1 直通 · 按 5 也行」。
+               要把 Num1 放进这行页脚，得先重排这行图例（两行/砍掉别的键），别直接往字符串尾巴上接。 -->
+          <TextBlock Grid.Column="0" Text="NUM8/2 选行 · NUM5 执行 · NUM0 返回" FontFamily="Consolas" FontSize="9"
+                     Foreground="{StaticResource TextTertiaryBrush}"/>
+          <TextBlock Grid.Column="1" Text="NUM4/6 左右 · NUM7/9 换页" FontFamily="Consolas" FontSize="9"
+                     Foreground="{StaticResource TextTertiaryBrush}"/>
+        </Grid>
+
+        <Grid x:Name="ExpandedPanel">
+          <ScrollViewer x:Name="PanelBoardScroll" Padding="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <!-- 宽度必须钉死成面板宽：ScrollViewer 的水平滚动是 Disabled，行宽超出时会被居中，
+                 功能页实测行宽 576 ⇒ 左边露出 108px（用户问了几遍的"功能那一栏左边空出那么多"就是这个，
+                 (576-360)/2=108 与视觉树量到的行根 x=108 完全吻合）。钉死 360 后 * 列才有确定宽度。 -->
+            <!-- 不要钉宽度：ScrollViewer 的内容区实测只有 341（面板 360 减滚动条/边框），
+                 钉 360 会溢出 19px ⇒ 右边整条被裁（"执行"被切成"执"就是这个）。
+                 让它自然撑满内容区，行里的 * 列才能吸掉多余宽度。 -->
+            <ItemsControl x:Name="PanelRowsControl"
+                          ItemsSource="{Binding PanelRows}" ItemTemplate="{StaticResource PanelRowTemplate}"/>
+          </ScrollViewer>
+        </Grid>
+
+        <!-- 底部图例：两列网格 -->
+      </DockPanel>
+    </Grid>
+  </ContentControl>
+</Window>

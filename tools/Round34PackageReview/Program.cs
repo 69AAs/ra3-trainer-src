@@ -1,0 +1,20 @@
+﻿using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
+using System.Buffers.Binary;
+if(args.Length<2){Console.Error.WriteLine("usage: Round34PackageReview <publish/Ra3Trainer.App.dll> <out/product/Ra3Overlay.dll>");return 2;}
+using var file=File.OpenRead(args[0]);
+using var pe=new PEReader(file);
+var md=pe.GetMetadataReader();
+var matches=md.ManifestResources.Select(h=>md.GetManifestResource(h)).Where(r=>md.GetString(r.Name)=="Ra3Overlay.dll").ToArray();
+if(matches.Length!=1 || !matches[0].Implementation.IsNil)throw new Exception("Embedded product resource missing/ambiguous");
+var rva=checked(pe.PEHeaders.CorHeader!.ResourcesDirectory.RelativeVirtualAddress+(int)matches[0].Offset);
+var data=pe.GetSectionData(rva).GetContent();
+if(data.Length<4)throw new Exception($"Embedded resource block too short (unmapped resource RVA?): {data.Length} bytes");
+int length=BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(0,4));
+if(length<0 || data.Length<4+length)throw new Exception($"Embedded resource length {length} does not fit the {data.Length}-byte block");
+var embedded=SHA256.HashData(data.AsSpan(4,length));
+var native=File.ReadAllBytes(args[1]);
+if(length!=native.Length || !embedded.SequenceEqual(SHA256.HashData(native)))throw new Exception("Stale/wrong embedded native resource");
+Console.WriteLine($"PASS publish input Ra3Overlay.dll embedded bytes={length} sha256={Convert.ToHexString(embedded)} equals out/product; machine={pe.PEHeaders.CoffHeader.Machine}");
+return 0;

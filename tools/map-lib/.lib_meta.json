@@ -1,0 +1,30 @@
+{
+  "FileName": "R3地图助手",
+  "FilePath": "",
+  "FileType": "dir",
+  "IsEnabled": true,
+  "IsIncluded": true,
+  "RunOnce": true,
+  "IsEvaluateEachFrame": true,
+  "EvaluationInterval": 1,
+  "ActiveInEasy": true,
+  "ActiveInMedium": true,
+  "ActiveInHard": true,
+  "OrderNum": 99,
+  "Children": [
+    {
+      "FileName": "init.lua",
+      "FilePath": "\\R3地图助手\\init.lua",
+      "FileType": "lua",
+      "IsEnabled": true,
+      "IsIncluded": true,
+      "RunOnce": true,
+      "IsEvaluateEachFrame": true,
+      "EvaluationInterval": 1,
+      "ActiveInEasy": true,
+      "ActiveInMedium": true,
+      "ActiveInHard": true,
+      "OrderNum": 99
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<!doctype html><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:360px;height:440px;background:#fff;color:#000;font-family:"Segoe UI Variable Display","Segoe UI",sans-serif;display:flex;flex-direction:column}
+.tabs{display:flex;border-bottom:4px solid #000}
+.tabs div{flex:1;padding:9px 0;text-align:center;font-size:24px;font-weight:800;letter-spacing:-1px;color:#bbb}
+.tabs div.on{color:#000;background:#E8C4C0}
+.head{padding:12px 16px 5px;border-bottom:1px solid #000}
+.t{font-size:13px;font-weight:800;letter-spacing:2.5px}
+.s{font-size:10.5px;color:#888;margin-top:3px;font-variant-numeric:tabular-nums}
+.list{flex:1;overflow:hidden}
+.r{display:flex;align-items:baseline;gap:8px;padding:3.5px 16px;border-bottom:1px solid #f0f0f0}
+.r.cur{background:#000;color:#fff;padding:9px 16px;border:none}
+.nm{font-size:12.5px;font-weight:600}
+.r.cur .nm{font-size:29px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.dt{font-size:10.5px;color:#999}
+.r.cur .dt{font-size:11px;color:#E8C4C0;letter-spacing:1px}
+.sp{flex:1}
+.val{font-size:10.5px;color:#999;font-variant-numeric:tabular-nums}
+.led{width:7px;height:7px;border-radius:50%;background:#ddd;flex:none;align-self:center}
+.led.on{background:#00A33E}
+.r.cur .led{background:#fff}
+.btn{font-size:10.5px;color:#666;border-bottom:1px solid #000}
+.r.cur .btn{color:#fff;border-bottom:1px solid #fff}
+.foot{padding:7px 16px;font-size:9.5px;letter-spacing:1.2px;color:#999;border-top:1px solid #eee}
+</style>
+<div class="tabs"><div>01</div><div class="on">02</div><div>03</div><div>04</div></div>
+<div class="head"><div class="t">RA3 / 启动</div><div class="s">已启用 3/31 · PID 82416 · hook 22/22</div></div>
+<div class="list"><div class="r cur"><span class="led"></span><span class="nm">一键启动并装载</span><span class="dt">本页主操作</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">检测进程</span><span class="dt">只读检测</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">装 Patch</span><span class="dt">装载 22 个 hook</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">一键全撤</span><span class="dt">紧急还原</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led"></span><span class="nm">启动器</span><span class="dt">游戏本体 · Red Alert 3</span><span class="sp"></span></div>
+<div class="r"><span class="led"></span><span class="nm">重新扫描启动器</span><span class="sp"></span><span class="btn">执行</span></div>
+<div class="r"><span class="led on"></span><span class="nm">启动后自动开面板</span><span class="sp"></span><span class="val">已启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led on"></span><span class="nm">装 patch 前校验</span><span class="sp"></span><span class="val">已启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led"></span><span class="nm">允许非标准版本</span><span class="sp"></span><span class="val">未启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led on"></span><span class="nm">崩溃自动取证</span><span class="sp"></span><span class="val">已启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led"></span><span class="nm">安全采样（只读）</span><span class="sp"></span><span class="val">未启用</span><span class="btn">切换</span></div>
+<div class="r"><span class="led"></span><span class="nm">面板位置</span><span class="sp"></span><span class="val">24, 24</span></div></div>
+<div class="foot">8/2 选行 · 5 执行 · 1/3/7/9 收藏</div>

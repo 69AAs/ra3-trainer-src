@@ -1,0 +1,25 @@
+        // ---- M3: a click on the panel really runs that control's command ----
+        {
+            vm.OverlayPanelSection = "增援";
+            panel.Render(); window.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            var content = panel.Root;
+            var button = Descendants(content).OfType<System.Windows.Controls.Button>()
+                .FirstOrDefault(b => b.IsEnabled && b.ActualWidth > 4 && b.ActualHeight > 4);
+            Check(button is not null, "M3 fixture located a real enabled button in the panel");
+            var origin = button!.TransformToAncestor(content).Transform(new System.Windows.Point(0, 0));
+            int cx = (int)(origin.X + button.ActualWidth / 2), cy = (int)(origin.Y + button.ActualHeight / 2);
+            // The press arrives in game pixels; the panel sits at 24,24. Map first, exactly
+            // like the product does, then hit test the mapped point.
+            Check(PanelClickMap.TryMap(cx + 24, cy + 24, 24, 24, OffscreenPanel.Width, OffscreenPanel.Height, out var lx, out var ly)
+                  && lx == cx && ly == cy, "M3 a game-pixel press maps onto the panel one to one");
+            int clicked = 0;
+            button.Click += (_, _) => clicked++;
+            Check(panel.TryInvokeAt(lx, ly, out var hit) && hit.Length > 0, "M3 the press lands on the button and names it");
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            Check(clicked == 1, "M3 the button's own click handler ran, exactly once");
+            Check(panel.TryInvokeAt(lx, ly, out _) && clicked == 2, "M3 a second press runs it again");
+            Check(panel.TryInvokeAt(-5, 5, out _) == false && panel.TryInvokeAt(5, -5, out _) == false
+                  && panel.TryInvokeAt(OffscreenPanel.Width, 5, out _) == false,
+                  "M3 presses outside the panel bounds are ignored");
+            Check(clicked == 2, "M3 ignored presses never reached a control");
+        }

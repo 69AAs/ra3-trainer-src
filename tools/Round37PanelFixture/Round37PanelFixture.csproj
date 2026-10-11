@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>FloatingWindow.Smoke</AssemblyName><OutputType>Exe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RuntimeIdentifier>win-x64</RuntimeIdentifier></PropertyGroup>
+  <ItemGroup><Compile Include="../../tests/FloatingWindow.Smoke/SmokeDependencies.cs" Link="SmokeDependencies.cs"/><ProjectReference Include="../../src/Ra3Trainer.App/Ra3Trainer.App.csproj" AdditionalProperties="RuntimeIdentifier=win-x64"/></ItemGroup>
+</Project>
